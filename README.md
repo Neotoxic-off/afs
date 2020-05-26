@@ -4,7 +4,7 @@ Automated Files Sorter
 ## Install:
 ```
 git clone https://github.com/Neotoxic-off/afs/
-cp afs/afs /usr/local/bin/
+cp afs/afs /usr/bin/
 cd <folder to sort>
 ```
 
