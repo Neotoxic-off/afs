@@ -1,0 +1,70 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+import shutil
+
+class content:
+    files = None
+    extension = None
+
+def spaces(_file):
+    i = 0
+
+    while i < len(_file):
+        if _file[i] == ' ':
+            return (1)
+        i += 1
+    return (0)
+
+def move(_file, folder):
+    name = folder
+    if folder[len(folder) - 1] != '/':
+        folder += '/'
+    os.rename("%s%s" % (_file, content.extension), "%s%s_%d%s" % (folder, name, len(os.listdir(folder)), content.extension))
+
+def special(_file):
+    i = 0
+    specials = 0
+
+    while i < len(_file):
+        if _file[i] == '.' or _file[i] == '-' or _file[i] == '_':
+            specials += 1
+        i += 1
+
+    return(specials)
+
+def parser(_file):
+    i = 0
+    total = special(_file)
+    name = ""
+
+    while i < len(_file):
+        if _file[i] == '.' or _file[i] == '-' or _file[i] == '_':
+            total -= 1
+        if total == special(_file) and ord(_file[i]) >= 97 and ord(_file[i]) <= 122:
+            name += _file[i]
+        i += 1
+
+    if len(name) > 1:
+        if os.path.isdir(name) == 0:
+            os.mkdir(name)
+        move(_file, name)
+    
+
+
+def args():
+    i = 0
+    _file = None
+
+    content.files = os.listdir(os.environ['PWD'])
+    while i < len(content.files):
+        if os.path.isfile(content.files[i]):
+            _file, extension = os.path.splitext(content.files[i].lower())
+            content.extension = extension
+            os.rename(content.files[i], "%s%s" % (_file, extension))
+            if special(_file) < (len(_file) + len(extension)):
+                parser(_file)
+        i += 1
+
+args()
