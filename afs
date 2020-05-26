@@ -48,10 +48,9 @@ def parser(_file):
 
     if len(name) > 1:
         if os.path.isdir(name) == 0:
-            os.mkdir(name)
-        move(_file, name)
-    
-
+            if os.path.exists(name) == 0:
+                os.mkdir(name)
+                move(_file, name)
 
 def args():
     i = 0
