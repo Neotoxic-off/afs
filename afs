@@ -1,69 +1,139 @@
-#!/usr/bin/env python3
-
 import os
-import sys
 import shutil
 
-class content:
-    files = None
-    extension = None
+def __error__(e):
+    data = {
+        "no_extension" : "Skipping: No extension found for",
+        "creation_dir" : "Error during the creation of",
+        "move_failed" : "Error during the move of"
+    }
+    return (data.get("%s" % e))
 
-def spaces(_file):
+def __files__(directory):
+    return (os.listdir(directory))
+
+def __exists__(directory):
+    if os.path.isdir(directory):
+        return (1)
+    if os.path.exists(directory):
+        return (0)
+    return (-1)
+
+def __count_files__(directory, mod = False):
     i = 0
+    count = 0
+    list = __files__(directory)
 
-    while i < len(_file):
-        if _file[i] == ' ':
-            return (1)
+    while i < len(list):
+        if __exists__("%s/%s" % (directory, list[i])) == 0:
+            count += 1
         i += 1
+    if mod == True:
+        if count > 1:
+            print("%d files to sort\n" % count)
+        elif count == 1:
+            print("%d file to sort\n" % count)
+        else:
+            print("No file to sort")
+            exit(0)
+    return (i)
+
+def __specials__(file_to_clean):
+    i = 0
+    character = 0
+    count = 0
+
+    while i < len(file_to_clean):
+        character = ord(file_to_clean[i])
+        if __is_special__(character) == 1:
+            count += 1
+        i += 1
+    return (count)
+
+def __is_special__(character):
+    if character < 65 or character > 122 or (character > 91 and character < 97):
+        return (1)
     return (0)
 
-def move(_file, folder):
-    name = folder
-    if folder[len(folder) - 1] != '/':
-        folder += '/'
-    os.rename("%s%s" % (_file, content.extension), "%s%s_%d%s" % (folder, name, len(os.listdir(folder)), content.extension))
-
-def special(_file):
+def __extension__(file_to_clean):
     i = 0
-    specials = 0
+    ext = ""
+    count = 0
+    character = 0
+    specials = __specials__(file_to_clean)
 
-    while i < len(_file):
-        if _file[i] == '.' or _file[i] == '-' or _file[i] == '_':
-            specials += 1
+    while i < len(file_to_clean):
+        character = ord(file_to_clean[i])
+        if __is_special__(character) == 1:
+            count += 1
+        if count == specials and specials >= 1:
+            ext += file_to_clean[i].lower()
         i += 1
+    return (ext)
 
-    return(specials)
+def __directory__(directory, cleanned):
+    full_path = "%s/%s" % (directory, cleanned)
+    if os.path.isdir(full_path) == False:
+        os.mkdir(full_path)
+    else:
+        cleanned += "_%d" % __count_files__(full_path)
+    return (cleanned)
 
-def parser(_file):
+def __cleaner__(directory, file_to_clean):
     i = 0
-    total = special(_file)
-    name = ""
+    count = 0
+    cleanned = ""
+    extension = __extension__(file_to_clean)
+    specials = __specials__(file_to_clean)
+    character = 0
+    full_path = "%s/%s" % (directory, file_to_clean)
 
-    while i < len(_file):
-        if _file[i] == '.' or _file[i] == '-' or _file[i] == '_':
-            total -= 1
-        if total == special(_file) and ord(_file[i]) >= 97 and ord(_file[i]) <= 122:
-            name += _file[i]
+    while i < len(file_to_clean):
+        character = ord(file_to_clean[i])
+        if __is_special__(character) == 1:
+            count += 1
+        if count < 1:
+            cleanned += file_to_clean[i].lower()
         i += 1
+    if len(extension) == 0:
+        print("%s '%s'" % (__error__("no_extension"), cleanned))
+        return (0)
+    elif len(cleanned) == 0:
+        cleanned = "default"
+    print("Source: %s" % (full_path))
+    try:
+        shutil.move("%s" % (full_path), "%s/%s/%s%s" % (directory, cleanned, __directory__(directory, cleanned), extension))
+        print("Moved:  %s/%s/%s%s" % (directory, cleanned, __directory__(directory, cleanned), extension))
+    except:
+        print("%s '%s'" % (__error__("move_failed"), cleanned))
+    return (0)
 
-    if len(name) > 1:
-        if os.path.isdir(name) == 0:
-            if os.path.exists(name) == 0:
-                os.mkdir(name)
-                move(_file, name)
-
-def args():
+def __parser__(directory):
+    files = None
+    cleanned = None
+    response = __exists__(directory)
     i = 0
-    _file = None
+    nb_files = 0 
+    full_path = None
 
-    content.files = os.listdir(os.environ['PWD'])
-    while i < len(content.files):
-        if os.path.isfile(content.files[i]):
-            _file, extension = os.path.splitext(content.files[i].lower())
-            content.extension = extension
-            os.rename(content.files[i], "%s%s" % (_file, extension))
-            if special(_file) < (len(_file) + len(extension)):
-                parser(_file)
-        i += 1
+    if response == 1:
+        files = __files__(directory)
+        nb_files = __count_files__(directory, True)
 
-args()
+        while i < nb_files:
+            full_path = "%s/%s" % (directory, files[i])
+            if __exists__(full_path) == 0:
+                __cleaner__(directory, files[i])
+            i += 1
+        return (0)
+    elif response == 0:
+        print("Can't sort a file")
+    else:
+        print("Folder not found")
+    return (84)
+
+def afs():
+    path = os.environ["PWD"]
+    return (__parser__(path))
+
+afs()
