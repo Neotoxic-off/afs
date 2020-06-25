@@ -77,8 +77,7 @@ def __directory__(directory, cleanned):
     full_path = "%s/%s" % (directory, cleanned)
     if os.path.isdir(full_path) == False:
         os.mkdir(full_path)
-    else:
-        cleanned += "_%d" % __count_files__(full_path)
+    cleanned += "_%d" % __count_files__(full_path)
     return (cleanned)
 
 def __cleaner__(directory, file_to_clean):
@@ -104,8 +103,9 @@ def __cleaner__(directory, file_to_clean):
         cleanned = "default"
     print("Source: %s" % (full_path))
     try:
-        shutil.move("%s" % (full_path), "%s/%s/%s%s" % (directory, cleanned, __directory__(directory, cleanned), extension))
-        print("Moved:  %s/%s/%s%s" % (directory, cleanned, __directory__(directory, cleanned), extension))
+        full = __directory__(directory, cleanned)
+        shutil.move("%s" % (full_path), "%s/%s/%s%s" % (directory, cleanned, full, extension))
+        print("Moved:  %s/%s/%s%s" % (directory, cleanned, full, extension))
     except:
         print("%s '%s'" % (__error__("move_failed"), cleanned))
     return (0)
