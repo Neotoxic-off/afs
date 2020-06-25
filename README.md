@@ -23,14 +23,15 @@ afs
 ├── test.png
 ├── issou_test.png
 ├── main.png
-├── main and main_ are same.png
+├── main_and_main_are_same.png
 └── trying spaces.jpg
 ```
 #### After AFS
 ```
 ➜  Pictures tree
 .
-├── 13.jpg
+├── default
+│   └── default_0.png
 ├── test
 │   └── test_0.png
 ├── issou
@@ -38,6 +39,6 @@ afs
 ├── main
 │   ├── main_0.png
 │   └── main_1.png
-└── tryingspaces
-    └── tryingspaces_0.png
+└── trying
+    └── trying_0.png
 ```
